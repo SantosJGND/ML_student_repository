@@ -1,0 +1,17 @@
+{
+  "Hour": 3,
+  "Temperature": 2.0,
+  "Humidity": 80.0,
+  "Wind_speed": 5.5,
+  "Visibility": 200,
+  "Dew_point_temperature": -1.0,
+  "Solar_Radiation": 0.0,
+  "Rainfall": 10.0,
+  "Snowfall": 3.0,
+  "Seasons_Spring": 0,
+  "Seasons_Summer": 0,
+  "Seasons_Winter": 1,
+  "Holiday_No_Holiday": 1,
+  "Functioning_Day_Yes": 1,
+  "model": "random_forest"
+}

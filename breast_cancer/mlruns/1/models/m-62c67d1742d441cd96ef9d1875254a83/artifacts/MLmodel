@@ -1,0 +1,51 @@
+artifact_path: /home/bioinf/Desktop/PERSONAL_WORK/RUMOS/MLengi/hidden_projet/breast_cancer/mlruns/1/models/m-62c67d1742d441cd96ef9d1875254a83/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.11.0
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+    skops_trusted_types: null
+is_signature_from_type_hint: false
+mlflow_version: 3.11.1
+model_id: m-62c67d1742d441cd96ef9d1875254a83
+model_size_bytes: 78796
+model_uuid: m-62c67d1742d441cd96ef9d1875254a83
+prompts: null
+run_id: 31a22ad657c6454f9bc9a43296713c87
+signature:
+  inputs: '[{"type": "double", "name": "Mean_Radius", "required": true}, {"type":
+    "double", "name": "SE_Radius", "required": true}, {"type": "double", "name": "Worst_Radius",
+    "required": true}, {"type": "double", "name": "Mean_Texture", "required": true},
+    {"type": "double", "name": "SE_Texture", "required": true}, {"type": "double",
+    "name": "Worst_Texture", "required": true}, {"type": "double", "name": "Mean_Perimeter",
+    "required": true}, {"type": "double", "name": "SE_Perimeter", "required": true},
+    {"type": "double", "name": "Worst_Perimeter", "required": true}, {"type": "double",
+    "name": "Mean_Area", "required": true}, {"type": "double", "name": "SE_Area",
+    "required": true}, {"type": "double", "name": "Worst_Area", "required": true},
+    {"type": "double", "name": "Mean_Smoothness", "required": true}, {"type": "double",
+    "name": "SE_Smoothness", "required": true}, {"type": "double", "name": "Worst_Smoothness",
+    "required": true}, {"type": "double", "name": "Mean_Compactness", "required":
+    true}, {"type": "double", "name": "SE_Compactness", "required": true}, {"type":
+    "double", "name": "Worst_Compactness", "required": true}, {"type": "double", "name":
+    "Mean_Concavity", "required": true}, {"type": "double", "name": "SE_Concavity",
+    "required": true}, {"type": "double", "name": "Worst_Concavity", "required": true},
+    {"type": "double", "name": "Mean_ConcavePoints", "required": true}, {"type": "double",
+    "name": "SE_ConcavePoints", "required": true}, {"type": "double", "name": "Worst_ConcavePoints",
+    "required": true}, {"type": "double", "name": "Mean_Symmetry", "required": true},
+    {"type": "double", "name": "SE_Symmetry", "required": true}, {"type": "double",
+    "name": "Worst_Symmetry", "required": true}, {"type": "double", "name": "Mean_FractalDimension",
+    "required": true}, {"type": "double", "name": "SE_FractalDimension", "required":
+    true}, {"type": "double", "name": "Worst_FractalDimension", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-05-03 20:43:52.501619'
