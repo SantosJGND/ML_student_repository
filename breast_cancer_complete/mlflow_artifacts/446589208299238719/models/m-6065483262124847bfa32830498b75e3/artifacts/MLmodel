@@ -1,0 +1,23 @@
+artifact_path: /home/bioinf/Desktop/PERSONAL_WORK/RUMOS/MLengi/hidden_projet/breast_cancer_copy/mlflow_artifacts/446589208299238719/models/m-6065483262124847bfa32830498b75e3/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.11.0
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+    skops_trusted_types: null
+mlflow_version: 3.11.1
+model_id: m-6065483262124847bfa32830498b75e3
+model_size_bytes: 29066
+model_uuid: m-6065483262124847bfa32830498b75e3
+prompts: null
+run_id: b00adc24365f4f3fa6531abdd7a171ff
+utc_time_created: '2026-05-12 12:16:27.334025'

@@ -1,0 +1,14 @@
+artifact_uri: /home/bioinf/Desktop/PERSONAL_WORK/RUMOS/MLengi/hidden_projet/breast_cancer_copy/mlflow_artifacts/446589208299238719/67511e553e0544539f99cce343941845/artifacts
+end_time: 1778586870462
+entry_point_name: ''
+experiment_id: '446589208299238719'
+lifecycle_stage: active
+run_id: 67511e553e0544539f99cce343941845
+run_name: LogisticRegression
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778586867963
+status: 3
+tags: []
+user_id: bioinf

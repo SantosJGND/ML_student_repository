@@ -19,10 +19,8 @@ def main():
         df = pd.read_csv(path)
         print(f"Loaded clean {name}: {df.shape}")
 
-        for preset_name in CORRUPTION_PRESETS:
-            corrupted = generate_corrupted_dataset(
-                df, preset=preset_name, target_col=TARGET_COL, seed=RANDOM_SEED
-            )
+        for preset_name, params in CORRUPTION_PRESETS.items():
+            corrupted = generate_corrupted_dataset(df, params, seed=RANDOM_SEED)
             out_path = CORRUPTED_DIR / f"corrupted_{name}_{preset_name}.csv"
             corrupted.to_csv(out_path, index=False)
             print(f"  Generated: {out_path} ({corrupted.shape})")

@@ -68,28 +68,33 @@ def inject_schema_drift(df, old_col=None, new_col=None):
     return df
 
 
-def generate_corrupted_dataset(df, preset="missing_light", target_col=None, seed=42):
-    presets = {
-        "missing_light": lambda d: inject_missing_data(d, ratio=0.05, columns=[target_col] if target_col else None, seed=seed),
-        "missing_heavy": lambda d: inject_missing_data(d, ratio=0.20, columns=[target_col] if target_col else None, seed=seed),
-        "noise_low": lambda d: inject_gaussian_noise(d, columns=[target_col] if target_col else None, noise_level=0.05, seed=seed),
-        "noise_high": lambda d: inject_gaussian_noise(d, columns=[target_col] if target_col else None, noise_level=0.15, seed=seed),
-        "outliers": lambda d: inject_outliers(d, target_col=target_col, spike_factor=3.0, days=5, seed=seed),
-        "bias": lambda d: inject_systematic_bias(d, bias_factor=0.7, columns=[target_col] if target_col else None, seed=seed),
-        "schema_drift": lambda d: inject_schema_drift(d, old_col=target_col, new_col=f"target_{target_col}" if target_col else None),
-    }
-    if preset not in presets:
-        raise ValueError(f"Unknown preset: {preset}. Available: {list(presets.keys())}")
-    return presets[preset](df)
+def generate_corrupted_dataset(df, params, seed=42):
+    corr_type = params["type"]
+    kwargs = {k: v for k, v in params.items() if k not in ("type", "seed")}
+    seed = params.get("seed", seed)
+
+    if corr_type == "missing":
+        return inject_missing_data(df, seed=seed, **kwargs)
+    elif corr_type == "noise":
+        return inject_gaussian_noise(df, seed=seed, **kwargs)
+    elif corr_type == "outliers":
+        return inject_outliers(df, seed=seed, **kwargs)
+    elif corr_type == "bias":
+        return inject_systematic_bias(df, seed=seed, **kwargs)
+    elif corr_type == "schema_drift":
+        return inject_schema_drift(df, **kwargs)
+    else:
+        raise ValueError(f"Unknown corruption type: {corr_type}. Expected one of: missing, noise, outliers, bias, schema_drift")
 
 
 if __name__ == "__main__":
+    from config import CORRUPTION_PRESETS
     CORRUPTED_DIR.mkdir(parents=True, exist_ok=True)
     clean_path = PROCESSED_DIR / "clean_data.csv"
     if clean_path.exists():
         df = pd.read_csv(clean_path)
-        for preset in ["missing_light", "noise_high", "outliers", "bias"]:
-            corrupted = generate_corrupted_dataset(df, preset=preset, seed=42)
-            out_path = CORRUPTED_DIR / f"corrupted_{preset}.csv"
+        for name, params in CORRUPTION_PRESETS.items():
+            corrupted = generate_corrupted_dataset(df, params, seed=42)
+            out_path = CORRUPTED_DIR / f"corrupted_{name}.csv"
             corrupted.to_csv(out_path, index=False)
             print(f"Generated: {out_path}")

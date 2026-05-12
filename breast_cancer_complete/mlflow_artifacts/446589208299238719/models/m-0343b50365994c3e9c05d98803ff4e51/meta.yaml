@@ -1,0 +1,10 @@
+artifact_location: /home/bioinf/Desktop/PERSONAL_WORK/RUMOS/MLengi/hidden_projet/breast_cancer_copy/mlflow_artifacts/446589208299238719/models/m-0343b50365994c3e9c05d98803ff4e51/artifacts
+creation_timestamp: 1778586876552
+experiment_id: '446589208299238719'
+last_updated_timestamp: 1778586878457
+model_id: m-0343b50365994c3e9c05d98803ff4e51
+model_type: null
+name: model
+source_run_id: b3b385a7254c48e4a0cb49e428735d8a
+status: 2
+status_message: null

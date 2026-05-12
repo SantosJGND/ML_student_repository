@@ -1,0 +1,14 @@
+artifact_uri: /home/bioinf/Desktop/PERSONAL_WORK/RUMOS/MLengi/hidden_projet/breast_cancer_copy/mlflow_artifacts/591164253199477713/60b0c8f34d734a8ab826ac0ede3e4d6b/artifacts
+end_time: 1778586927703
+entry_point_name: ''
+experiment_id: '591164253199477713'
+lifecycle_stage: active
+run_id: 60b0c8f34d734a8ab826ac0ede3e4d6b
+run_name: monitoring_noise_low
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778586927688
+status: 3
+tags: []
+user_id: bioinf

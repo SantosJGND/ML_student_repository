@@ -1,0 +1,14 @@
+artifact_uri: /home/bioinf/Desktop/PERSONAL_WORK/RUMOS/MLengi/hidden_projet/breast_cancer_copy/mlflow_artifacts/446589208299238719/b00adc24365f4f3fa6531abdd7a171ff/artifacts
+end_time: 1778588189273
+entry_point_name: ''
+experiment_id: '446589208299238719'
+lifecycle_stage: active
+run_id: b00adc24365f4f3fa6531abdd7a171ff
+run_name: SVM
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778588187320
+status: 3
+tags: []
+user_id: bioinf

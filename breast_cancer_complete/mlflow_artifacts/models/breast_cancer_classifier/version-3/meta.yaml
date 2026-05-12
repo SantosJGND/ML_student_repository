@@ -1,0 +1,16 @@
+creation_timestamp: 1778512738198
+current_stage: Staging
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1778512738288
+model_id: m-5ede2aaa9c7749a99295750994e61abf
+name: breast_cancer_classifier
+run_id: d3d611433c00445789f70728de930d8d
+run_link: null
+source: models:/m-5ede2aaa9c7749a99295750994e61abf
+status: READY
+status_message: null
+storage_location: /home/bioinf/Desktop/PERSONAL_WORK/RUMOS/MLengi/hidden_projet/breast_cancer_copy/mlflow_artifacts/446589208299238719/models/m-5ede2aaa9c7749a99295750994e61abf/artifacts
+user_id: null
+version: 3
+workspace: default

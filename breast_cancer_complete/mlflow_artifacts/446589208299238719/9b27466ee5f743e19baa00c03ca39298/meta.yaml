@@ -1,0 +1,14 @@
+artifact_uri: /home/bioinf/Desktop/PERSONAL_WORK/RUMOS/MLengi/hidden_projet/breast_cancer_copy/mlflow_artifacts/446589208299238719/9b27466ee5f743e19baa00c03ca39298/artifacts
+end_time: 1778588187302
+entry_point_name: ''
+experiment_id: '446589208299238719'
+lifecycle_stage: active
+run_id: 9b27466ee5f743e19baa00c03ca39298
+run_name: XGBoost
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778588185303
+status: 3
+tags: []
+user_id: bioinf

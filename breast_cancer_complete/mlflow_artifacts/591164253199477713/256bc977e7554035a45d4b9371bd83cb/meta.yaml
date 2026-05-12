@@ -1,0 +1,14 @@
+artifact_uri: /home/bioinf/Desktop/PERSONAL_WORK/RUMOS/MLengi/hidden_projet/breast_cancer_copy/mlflow_artifacts/591164253199477713/256bc977e7554035a45d4b9371bd83cb/artifacts
+end_time: 1778513403593
+entry_point_name: ''
+experiment_id: '591164253199477713'
+lifecycle_stage: active
+run_id: 256bc977e7554035a45d4b9371bd83cb
+run_name: monitoring_missing_light
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778513403573
+status: 3
+tags: []
+user_id: bioinf
