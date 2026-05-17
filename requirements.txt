@@ -17,3 +17,4 @@ pytest==9.0.2
 nbformat>=4.2.0
 ipykernel>=6.0.0
 seaborn==0.13.2
+black==26.5.0

@@ -15,10 +15,10 @@ NUMERIC_COLS = [
 
 CORRUPTION_PRESETS = {
     "missing_light": {"type": "missing", "ratio": 0.05, "columns": [TARGET_COL]},
-    "missing_heavy": {"type": "missing", "ratio": 0.20, "columns": [TARGET_COL]},
+    "missing_heavy": {"type": "missing", "ratio": 0.20, "columns": ["Mean_Compactness", "Mean_Concavity", "Mean_ConcavePoints", "Mean_Symmetry", TARGET_COL]},
     "noise_low": {"type": "noise", "noise_level": 0.05, "columns": NUMERIC_COLS[:5]},
     "noise_high": {"type": "noise", "noise_level": 0.35, "columns": NUMERIC_COLS[:5]},
-    "outliers": {"type": "outliers", "spike_factor": 16.0, "days": 25, "target_col": NUMERIC_COLS[:10]},
+    "outliers": {"type": "outliers", "spike_factor": 16.0, "days": 25, "target_cols": NUMERIC_COLS[:10]},
     "bias": {"type": "bias", "bias_factor": 0.9, "columns": NUMERIC_COLS[:5]},
     "schema_drift": {"type": "schema_drift", "old_col": TARGET_COL, "new_col": "diagnosis_label"},
 }

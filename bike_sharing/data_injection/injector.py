@@ -36,12 +36,12 @@ def inject_gaussian_noise(df, columns=None, noise_level=0.05, seed=42):
     return df
 
 
-def inject_outliers(df, target_col=None, spike_factor=3.0, days=7, seed=42):
+def inject_outliers(df, target_cols=None, spike_factor=3.0, days=7, seed=42):
     df = df.copy()
     set_seed(seed)
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    if target_col and target_col in numeric_cols:
-        cols_to_spike = [target_col]
+    if target_cols is not None:
+        cols_to_spike = [target_cols]
     else:
         cols_to_spike = numeric_cols[:2]
     start = np.random.randint(0, max(1, len(df) - days))
@@ -74,7 +74,7 @@ def generate_corrupted_dataset(df, preset="missing_light", target_col=None, seed
         "missing_heavy": lambda d: inject_missing_data(d, ratio=0.20, columns=[target_col] if target_col else None, seed=seed),
         "noise_low": lambda d: inject_gaussian_noise(d, columns=[target_col] if target_col else None, noise_level=0.05, seed=seed),
         "noise_high": lambda d: inject_gaussian_noise(d, columns=[target_col] if target_col else None, noise_level=0.15, seed=seed),
-        "outliers": lambda d: inject_outliers(d, target_col=target_col, spike_factor=3.0, days=5, seed=seed),
+        "outliers": lambda d: inject_outliers(d, target_cols=target_col, spike_factor=3.0, days=5, seed=seed),
         "bias": lambda d: inject_systematic_bias(d, bias_factor=0.7, columns=[target_col] if target_col else None, seed=seed),
         "schema_drift": lambda d: inject_schema_drift(d, old_col=target_col, new_col=f"target_{target_col}" if target_col else None),
     }

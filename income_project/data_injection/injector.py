@@ -36,18 +36,19 @@ def inject_gaussian_noise(df, columns=None, noise_level=0.05, seed=42):
     return df
 
 
-def inject_outliers(df, target_col=None, spike_factor=3.0, days=7, seed=42):
+def inject_outliers(df, target_cols=None, spike_factor=3.0, days=7, seed=42):
     df = df.copy()
     set_seed(seed)
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    if target_col and target_col in numeric_cols:
-        cols_to_spike = [target_col]
+    if target_cols is not None:
+        cols_to_spike = [target_cols]
     else:
         cols_to_spike = numeric_cols[:2]
     start = np.random.randint(0, max(1, len(df) - days))
     for col in cols_to_spike:
         df.loc[start:start + days - 1, col] = df.loc[start:start + days - 1, col] * spike_factor
     return df
+
 
 
 def inject_systematic_bias(df, bias_factor=0.7, columns=None, seed=42):
