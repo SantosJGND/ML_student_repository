@@ -21,4 +21,6 @@ CORRUPTION_PRESETS = {
     "outliers": {"type": "outliers", "spike_factor": 3.0, "days": 5, "target_cols": NUMERIC_COLS[:5] + [TARGET_COL]},
     "bias": {"type": "bias", "bias_factor": 0.7, "columns": NUMERIC_COLS[:5]},
     "schema_drift": {"type": "schema_drift", "old_col": TARGET_COL, "new_col": "diagnosis_label"},
+    "duplicates_light": {"type": "duplicates", "ratio": 0.05},
+    "duplicates_heavy": {"type": "duplicates", "ratio": 0.25},
 }

@@ -62,6 +62,17 @@ def inject_systematic_bias(df, bias_factor=0.7, columns=None, seed=42):
     return df
 
 
+def inject_duplicate_entries(df, ratio=0.1, seed=42):
+    df = df.copy()
+    set_seed(seed)
+    n_dup = int(len(df) * ratio)
+    idx = np.random.choice(df.index, size=n_dup, replace=True)
+    duplicates = df.loc[idx].reset_index(drop=True)
+    result = pd.concat([df, duplicates], ignore_index=True)
+    result = result.sample(frac=1, random_state=seed).reset_index(drop=True)
+    return result
+
+
 def inject_schema_drift(df, old_col=None, new_col=None):
     df = df.copy()
     if old_col and new_col and old_col in df.columns:
@@ -84,8 +95,10 @@ def generate_corrupted_dataset(df, params, seed=42):
         return inject_systematic_bias(df, seed=seed, **kwargs)
     elif corr_type == "schema_drift":
         return inject_schema_drift(df, **kwargs)
+    elif corr_type == "duplicates":
+        return inject_duplicate_entries(df, seed=seed, **kwargs)
     else:
-        raise ValueError(f"Unknown corruption type: {corr_type}. Expected one of: missing, noise, outliers, bias, schema_drift")
+        raise ValueError(f"Unknown corruption type: {corr_type}. Expected one of: missing, noise, outliers, bias, schema_drift, duplicates")
 
 
 if __name__ == "__main__":
