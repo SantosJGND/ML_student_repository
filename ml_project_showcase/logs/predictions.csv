@@ -1,0 +1,5 @@
+timestamp,model_version,prediction,latency_ms
+2026-05-29T13:42:49.335409,breast_cancer_svm v2,1,1054.44
+2026-05-29T13:45:01.519587,breast_cancer_svm v2,1,1337.06
+2026-05-29T13:46:09.311094,breast_cancer_svm v2,1,1455.79
+2026-05-29T13:51:10.769889,breast_cancer_svm v2,1,976.55

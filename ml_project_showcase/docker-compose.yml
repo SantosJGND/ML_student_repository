@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v3.12.0
+    container_name: mlflow-server
+
+    ports:
+      - "5000:5000"
+
+    volumes:
+      - mlflow_data:/mlflow
+      - mlflow_artifacts:/mlartifacts
+
+    command: >
+      mlflow server
+        --host 0.0.0.0
+        --port 5000
+        --backend-store-uri sqlite:////mlflow/mlflow.db
+        --default-artifact-root file:///mlartifacts
+        --no-serve-artifacts
+        --allowed-hosts "*"
+        --cors-allowed-origins "*"
+
+  app:
+    build: .
+    container_name: breast-cancer-api
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      - mlflow
+
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - MLFLOW_EXPERIMENT=breast_cancer
+
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - mlflow_artifacts:/mlartifacts
+
+volumes:
+  mlflow_data:
+  mlflow_artifacts:

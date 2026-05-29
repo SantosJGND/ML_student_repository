@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+import time
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional, Dict
 import sys
@@ -9,19 +10,19 @@ from sklearn.metrics import accuracy_score, f1_score
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from models.predict import predict_diagnosis, predict_malignancy_prob
+from mlops.model_registry import load_production_model, get_model_version
+from mlops.monitor import log_prediction, get_metrics
 from models.train import (
     train_logistic, train_xgboost,
     train_random_forest, train_svm, save_model
 )
-from config import get_logger
+from config import get_logger, MLFLOW_TRACKING_URI, MLFLOW_EXPERIMENT, registry_name
 
 logger = get_logger(__name__)
 
 app = FastAPI(title="Breast Cancer ML API")
 
 class PredictRequest(BaseModel):
-    # 30 features from the breast cancer dataset
     Mean_Radius: float = 0.0
     SE_Radius: float = 0.0
     Worst_Radius: float = 0.0
@@ -64,6 +65,8 @@ class TrainResponse(BaseModel):
     model_type: str
     status: str
     metrics: Optional[Dict] = None
+    run_id: Optional[str] = None
+    model_version: Optional[str] = None
     message: str
 
 
@@ -71,6 +74,7 @@ class PredictResponse(BaseModel):
     diagnosis_prediction: int
     malignancy_probability: float
     model_used: str
+    model_version: Optional[str] = None
 
 
 @app.post("/predict", response_model=PredictResponse)
@@ -107,73 +111,128 @@ def predict(req: PredictRequest):
         'SE_FractalDimension': req.SE_FractalDimension,
         'Worst_FractalDimension': req.Worst_FractalDimension,
     }
-    model_name = req.model or "logistic"
-    diagnosis = predict_diagnosis(model_name, features)
-    prob = predict_malignancy_prob(model_name, features)
-    if diagnosis is None:
-        diagnosis = 0
-    if prob is None:
-        prob = 0.0
-    logger.info(f"Prediction: diagnosis={diagnosis}, prob={prob:.3f}, model={model_name}")
+    import numpy as np
+    model_type = req.model or "logistic"
+    start = time.time()
+
+    from mlflow.tracking import MlflowClient
+
+    client = MlflowClient()
+    print(client.search_model_versions(f"name='{registry_name(model_type)}'"))
+    print(client.get_latest_versions(registry_name(model_type), stages=["Production", "Staging"]))
+
+    try:
+        model = load_production_model(model_type)
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+    feature_names = list(features.keys())
+    X = np.array([[features[f] for f in feature_names]])
+    pred = model.predict(X)
+    prob = model.predict_proba(X)
+
+    diagnosis = int(pred[0])
+    malignancy_prob = float(prob[0][1])
+    model_version = get_model_version(model_type)
+
+    latency_ms = (time.time() - start) * 1000
+    log_prediction(
+        model_version=f"{registry_name(model_type)} v{model_version['version']}",
+        prediction=diagnosis,
+        latency_ms=latency_ms,
+    )
+
+    logger.info(f"Prediction: diagnosis={diagnosis}, prob={malignancy_prob:.3f}, model={model_type}")
     return PredictResponse(
         diagnosis_prediction=diagnosis,
-        malignancy_probability=prob,
-        model_used=model_name
+        malignancy_probability=malignancy_prob,
+        model_used=model_type,
+        model_version=f"v{model_version['version']}" if model_version['version'] else None,
     )
 
 
 @app.get("/health")
 def health():
-    return {"status": "healthy"}
+    versions = {}
+    from config import PROJECT_MODELS
+    for mt in PROJECT_MODELS:
+        v = get_model_version(mt)
+        versions[mt] = v
+    return {
+        "status": "healthy",
+        "models": versions,
+    }
+
+
+@app.get("/metrics")
+def metrics():
+    return get_metrics()
 
 
 @app.post("/train", response_model=TrainResponse)
 def train(req: TrainRequest):
-    # Hardcoded data path (not exposed to user)
-    data_path = Path(__file__).parent.parent / "data" / "processed" / "clean_data.csv"
+    import mlflow
+    import mlflow.sklearn
 
-    # Load data
+    data_path = Path(__file__).parent.parent / "data" / "processed" / "clean_data.csv"
     df = pd.read_csv(data_path)
     X = df.drop('Diagnosis', axis=1)
     y = df['Diagnosis']
-
-    # Split data (hardcoded test_size=0.2)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
 
-    # Train model based on type
-    model = None
-    if req.model_type == 'logistic':
-        model = train_logistic(X_train, y_train, req.params)
-    elif req.model_type == 'xgboost':
-        model = train_xgboost(X_train, y_train, req.params)
-    elif req.model_type == 'random_forest':
-        model = train_random_forest(X_train, y_train, req.params)
-    elif req.model_type == 'svm':
-        model = train_svm(X_train, y_train, req.params)
-    else:
+    train_fn = {
+        'logistic': train_logistic,
+        'xgboost': train_xgboost,
+        'random_forest': train_random_forest,
+        'svm': train_svm,
+    }.get(req.model_type)
+
+    if train_fn is None:
         return TrainResponse(
             model_type=req.model_type,
             status="error",
             message=f"Unknown model type: {req.model_type}"
         )
 
-    # Evaluate on test set
+    from sklearn.pipeline import Pipeline
+    from sklearn.preprocessing import StandardScaler
+    needs_scaling = req.model_type in ("logistic", "svm")
+    if needs_scaling:
+        clf = train_fn(X_train, y_train, req.params or {})
+        pipeline = Pipeline([("scaler", StandardScaler()), ("clf", clf)])
+        pipeline.fit(X_train, y_train)
+        model = pipeline
+    else:
+        model = train_fn(X_train, y_train, req.params or {})
+
     y_pred = model.predict(X_test)
     metrics = {
         'accuracy': float(accuracy_score(y_test, y_pred)),
-        'f1': float(f1_score(y_test, y_pred))
+        'f1': float(f1_score(y_test, y_pred)),
     }
 
-    # Save model (backend handles path)
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+    mlflow.set_experiment(MLFLOW_EXPERIMENT)
+    with mlflow.start_run(run_name=req.model_type) as run:
+        run_id = run.info.run_id
+        mlflow.log_param("model_type", req.model_type)
+        mlflow.log_metrics(metrics)
+        mlflow.sklearn.log_model(sk_model=model, artifact_path="model")
+        registered_name = registry_name(req.model_type)
+        result = mlflow.register_model(f"runs:/{run_id}/model", registered_name)
+        model_version = result.version
+
     save_model(model, req.model_type)
 
-    logger.info(f"Model {req.model_type} trained - accuracy: {metrics['accuracy']:.3f}, f1: {metrics['f1']:.3f}")
+    logger.info(f"{req.model_type} trained - acc={metrics['accuracy']:.3f}, f1={metrics['f1']:.3f}, registered as {registered_name} v{model_version}")
 
     return TrainResponse(
         model_type=req.model_type,
         status="success",
         metrics=metrics,
-        message=f"Model saved to models/{req.model_type}.joblib"
+        run_id=run_id,
+        model_version=str(model_version),
+        message=f"Registered as {registered_name} v{model_version}"
     )

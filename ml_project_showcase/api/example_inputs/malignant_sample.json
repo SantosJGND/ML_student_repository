@@ -29,5 +29,5 @@
     "Mean_FractalDimension": 0.07871,
     "SE_FractalDimension": 0.007398,
     "Worst_FractalDimension": 0.3001,
-    "model": "logistic"
+    "model": "svm"
 }

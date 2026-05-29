@@ -79,3 +79,88 @@ Students should implement functions in these modules (function signatures provid
 - `evaluation/metrics.py` — `calculate_metrics()`, `calculate_cv_score()`
 
 **Note**: Inference (`run_inference.py`) is out of scope for this exercise.
+
+## Docker MLOps Deployment
+
+The project includes a full Docker-based MLOps stack with MLflow Model Registry as the single source of truth.
+
+### Prerequisites
+
+- Docker & Docker Compose v3.8+
+- At least 2 GB RAM allocated to Docker
+
+### Quick Start
+
+```bash
+# 1. Start services
+docker-compose up -d
+
+# 2. Seed MLflow Registry with pre-trained models
+docker-compose run app python mlops/bootstrap.py
+
+# 3. Verify API
+curl http://localhost:8000/health
+```
+
+### Services
+
+| Service | Port | Description |
+|---|---|---|
+| `mlflow` | 5000 | MLflow Tracking Server (SQLite backend, Model Registry) |
+| `app` | 8000 | FastAPI inference API |
+
+### API Endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/health` | Service health + model registry status |
+| `POST` | `/predict` | Predict using Production model from MLflow Registry |
+| `GET` | `/metrics` | Request count, avg latency, current model version |
+| `POST` | `/train` | Train, log to MLflow, register model |
+
+### Execution Modes
+
+The `app` container supports three modes via command override:
+
+```bash
+# Mode A — API server (default)
+docker-compose up -d
+
+# Mode B — Training pipeline
+docker-compose run app python mlops/train_pipeline.py
+
+# Mode C — Evaluation gate
+docker-compose run app python mlops/gate.py --model-type logistic --run-id <run_id>
+```
+
+### Workflow
+
+```bash
+# Train all 4 models → register → gate → promote to Staging
+docker-compose run app python mlops/train_pipeline.py
+
+# Promote a model from Staging → Production (via MLflow UI)
+open http://localhost:5000
+
+# The API automatically serves the latest Production model
+curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"Mean_Radius": 14.0, ..., "model": "logistic"}'
+```
+
+### Utility Scripts
+
+```bash
+# Reset MLflow state (delete all models, experiments, monitoring logs)
+docker-compose run app python mlops/cleandb.py
+
+# Re-seed registry with existing .joblib models
+docker-compose run app python mlops/bootstrap.py
+```
+
+### Architecture Rules
+
+- The API **never** loads local models — only MLflow Registry (`models:/{name}/Production` or `Staging`)
+- Model naming: `{project_name}_{model_type}` (e.g., `breast_cancer_logistic`)
+- Stages: `None → Staging` (auto on gate pass) → `Production` (manual via MLflow UI)
+- Monitoring logs: `logs/predictions.csv` (timestamp, model version, prediction, latency)
